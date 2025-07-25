@@ -5,6 +5,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import useQuizProgress from '@/hooks/useQuizProgress';
 
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
 /**
  * 章の情報を管理する配列
  * 各章のslug、タイトル、アイコンを定義
@@ -51,14 +56,40 @@ const chapters = [
 /**
  * 左側サイドバーコンポーネント
  * 学習チャプターのナビゲーションリンクを提供
+ * モバイルではオーバーレイとして表示
  */
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname();
   const { completedCount, totalChapters, progressPercentage, isChapterCompleted } = useQuizProgress();
 
   return (
-    <aside className="fixed left-0 top-16 bottom-0 w-64 bg-gray-100 border-r border-gray-300 p-4 overflow-y-auto">
-      <nav>
+    <>
+      {/* モバイル用オーバーレイ背景 */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* サイドバー */}
+      <aside className={`fixed left-0 top-16 bottom-0 w-64 bg-gray-100 border-r border-gray-300 p-4 overflow-y-auto z-50 transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        
+        {/* モバイル用閉じるボタン */}
+        <div className="md:hidden flex justify-end mb-4">
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-600 hover:text-gray-800"
+            aria-label="メニューを閉じる"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <nav>
         <h2 className="text-lg font-semibold text-gray-800 mb-4">
           学習チャプター
         </h2>
@@ -67,6 +98,7 @@ const Sidebar: React.FC = () => {
         <div className="mb-6">
           <Link 
             href="/"
+            onClick={onClose}
             className={`block p-3 rounded-lg transition-colors duration-200 ${
               pathname === '/' 
                 ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-500' 
@@ -90,6 +122,7 @@ const Sidebar: React.FC = () => {
               <Link
                 key={chapter.slug}
                 href={`/chapters/${chapter.slug}`}
+                onClick={onClose}
                 className={`block p-3 rounded-lg transition-colors duration-200 relative ${
                   isActive
                     ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-500'
@@ -136,6 +169,7 @@ const Sidebar: React.FC = () => {
         </div>
       </nav>
     </aside>
+    </>
   );
 };
 
