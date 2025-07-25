@@ -1,9 +1,5 @@
-'use client';
-
-import { useState } from 'react';
 import { notFound } from 'next/navigation';
-import Header from '@/components/Header';
-import Sidebar from '@/components/Sidebar';
+import ChapterLayout from '@/components/ChapterLayout';
 import MindsetChapter from '@/components/chapters/MindsetChapter';
 import AiBasicsChapter from '@/components/chapters/AiBasicsChapter';
 import GettingStartedChapter from '@/components/chapters/GettingStartedChapter';
@@ -49,7 +45,6 @@ type ChapterSlug = keyof typeof chapters;
  * URLのslugパラメータに基づいて適切な章コンテンツを表示する
  */
 export default function ChapterPage({ params }: { params: { slug: string } }) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const chapter = chapters[params.slug as ChapterSlug];
 
   // 存在しない章の場合は404ページを表示
@@ -57,36 +52,12 @@ export default function ChapterPage({ params }: { params: { slug: string } }) {
     notFound();
   }
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-
   const ChapterComponent = chapter.component;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 固定ヘッダー */}
-      <Header onMenuToggle={toggleMobileMenu} />
-      
-      {/* サイドバー */}
-      <Sidebar isOpen={isMobileMenuOpen} onClose={closeMobileMenu} />
-      
-      {/* メインコンテンツエリア（レスポンシブ対応） */}
-      <div className="md:ml-64">
-        <main className="mt-16 p-4 md:p-8 min-h-screen bg-white">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 mb-8">
-              {chapter.title}
-            </h1>
-            <ChapterComponent />
-          </div>
-        </main>
-      </div>
-    </div>
+    <ChapterLayout title={chapter.title}>
+      <ChapterComponent />
+    </ChapterLayout>
   );
 }
 
